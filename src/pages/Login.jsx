@@ -10,9 +10,10 @@ export default function Login({ onLogin }) {
 
   const handleLogin = async (e) => {
     e.preventDefault();
-    setFelmeddelande("");
+    setFelmeddelande(""); // Reset error message
 
     try {
+      // Invia la richiesta POST al backend
       const res = await fetch(`${API}/login`, {
         method: "POST",
         headers: { "Content-Type": "application/x-www-form-urlencoded" },
@@ -22,14 +23,24 @@ export default function Login({ onLogin }) {
         }),
       });
 
-      if (!res.ok) throw new Error("Felaktiga uppgifter");
+      // Verifica se la risposta è OK
+      if (!res.ok) {
+        // Se la risposta non è OK, gestisci l'errore
+        const errorData = await res.json(); // Prova a recuperare il messaggio di errore dal server
+        throw new Error(errorData.detail || "Errore sconosciuto durante il login");
+      }
 
+      // Se la risposta è OK, processa il JSON e salva il token
       const data = await res.json();
-      localStorage.setItem("token", data.access_token);
-      onLogin();
-      navigate("/kundfordon");
+      if (data.access_token) {
+        localStorage.setItem("token", data.access_token); // Salva il token nel localStorage
+        onLogin(); // Segna l'utente come autenticato
+        navigate("/kundfordon"); // Fai il redirect alla pagina successiva
+      } else {
+        throw new Error("Token non trovato nella risposta.");
+      }
     } catch (err) {
-      setFelmeddelande("Inloggning misslyckades: " + err.message);
+      setFelmeddelande("Inloggning misslyckades: " + err.message); // Mostra l'errore se c'è un problema
     }
   };
 
