@@ -7,6 +7,7 @@ import {
 } from "react-router-dom";
 
 import Login from "./pages/Login";
+import Register from "./pages/Register";
 import ResetPasswordRequest from "./pages/ResetPasswordRequest";
 import ResetPassword from "./pages/ResetPassword";
 import KundFordon from "./pages/KundFordon";
@@ -52,6 +53,7 @@ function App() {
         />
 
         {/* Pagine per il reset della password */}
+        <Route path="/register" element={<Register />} />
         <Route path="/reset" element={<ResetPasswordRequest />} />
         <Route path="/reset-password" element={<ResetPassword />} />
       </Routes>
