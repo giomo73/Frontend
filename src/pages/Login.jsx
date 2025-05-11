@@ -25,9 +25,14 @@ export default function Login({ onLogin }) {
 
       // Verifica se la risposta è OK
       if (!res.ok) {
-        // Se la risposta non è OK, gestisci l'errore
-        const errorData = await res.json(); // Prova a recuperare il messaggio di errore dal server
-        throw new Error(errorData.detail || "Errore sconosciuto durante il login");
+        let errorMessage = "Felaktiga inloggningsuppgifter";
+        try {
+          const errorData = await res.json();
+          errorMessage = errorData.detail || errorMessage;
+        } catch (err) {
+          // Se il backend non restituisce JSON, non fare nulla
+        }
+        throw new Error(errorMessage);
       }
 
       // Se la risposta è OK, processa il JSON e salva il token
