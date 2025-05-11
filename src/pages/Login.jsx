@@ -9,49 +9,46 @@ export default function Login({ onLogin }) {
   const API = process.env.REACT_APP_API_URL;
 
   const handleLogin = async (e) => {
-    e.preventDefault();
-    setFelmeddelande(""); // Reset error message
+  e.preventDefault();
+  setFelmeddelande("");
+  console.log("API URL:", API);
 
-    try {
-      // Invia la richiesta POST al backend
-      const res = await fetch(`${API}/login`, {
-        method: "POST",
-        headers: { "Content-Type": "application/x-www-form-urlencoded" },
-        body: new URLSearchParams({
-          username: email,
-          password: password,
-        }),
-      });
+  try {
+    const res = await fetch(`${API}/login`, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        username: email,
+        password: password,
+      }),
+    });
 
-      // Verifica se la risposta è OK
-      if (!res.ok) {
-        let errorMessage = "Felaktiga inloggningsuppgifter";
-        try {
-          const errorData = await res.json();
-          errorMessage = errorData.detail || errorMessage;
-        } catch (err) {
-          // Se il backend non restituisce JSON, non fare nulla
-        }
-        throw new Error(errorMessage);
-      }
+    console.log("HTTP status:", res.status);
 
-      // Se la risposta è OK, processa il JSON e salva il token
-      let data;
+    if (!res.ok) {
+      let errorMessage = "Felaktiga inloggningsuppgifter";
       try {
-        data = await res.json();
-      } catch (err) {
-        throw new Error("Svar från servern saknar giltig JSON.");
+        const errorData = await res.json();
+        errorMessage = errorData.detail || errorMessage;
+      } catch {
+        errorMessage = "Svar från servern saknar giltig JSON.";
       }
+      throw new Error(errorMessage);
+    }
 
-      if (data.access_token) {
-        localStorage.setItem("token", data.access_token);
-        onLogin();
-        navigate("/kundfordon");
-      } else {
-        throw new Error("Token inte hittad i svaret.");
-      }
-    } catch (err) {
-      setFelmeddelande("Inloggning misslyckades: " + err.message);
+    const data = await res.json();
+    console.log("Login response:", data);
+
+    if (data.access_token) {
+      localStorage.setItem("token", data.access_token);
+      onLogin();
+      navigate("/kundfordon");
+    } else {
+      throw new Error("Token inte hittad i svaret.");
+    }
+  } catch (err) {
+    console.error("Login error:", err);
+    setFelmeddelande("Inloggning misslyckades: " + err.message);
     }
   };
 
