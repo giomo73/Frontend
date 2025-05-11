@@ -36,16 +36,22 @@ export default function Login({ onLogin }) {
       }
 
       // Se la risposta è OK, processa il JSON e salva il token
-      const data = await res.json();
+      let data;
+      try {
+        data = await res.json();
+      } catch (err) {
+        throw new Error("Svar från servern saknar giltig JSON.");
+      }
+
       if (data.access_token) {
-        localStorage.setItem("token", data.access_token); // Salva il token nel localStorage
-        onLogin(); // Segna l'utente come autenticato
-        navigate("/kundfordon"); // Fai il redirect alla pagina successiva
+        localStorage.setItem("token", data.access_token);
+        onLogin();
+        navigate("/kundfordon");
       } else {
-        throw new Error("Token non trovato nella risposta.");
+        throw new Error("Token inte hittad i svaret.");
       }
     } catch (err) {
-      setFelmeddelande("Inloggning misslyckades: " + err.message); // Mostra l'errore se c'è un problema
+      setFelmeddelande("Inloggning misslyckades: " + err.message);
     }
   };
 
